@@ -1,0 +1,73 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '2.1.3.RELEASE'
+    id "com.gorylenko.gradle-git-properties" version "2.0.0"
+}
+
+group = GROUPID
+version = VERSION
+apply plugin: 'io.spring.dependency-management'
+
+repositories {
+    mavenLocal()
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public" }
+    maven { url "https://repo.spring.io/libs-release" }
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    mavenCentral()
+}
+
+ext {
+    javaVersion = JavaVersion.VERSION_1_8
+    micaVersion = "0.0.1-RC2"
+    swaggerVersion = "2.9.2"
+    lombokVersion = "1.18.6"
+}
+
+dependencies {
+    implementation "org.springframework.boot:spring-boot-starter-web"
+    implementation "org.springframework.boot:spring-boot-starter-aop"
+    implementation "org.springframework.boot:spring-boot-starter-undertow"
+    implementation "net.dreamlu:mica-launcher"
+    implementation "net.dreamlu:mica-boot"
+    implementation "net.dreamlu:mica-log4j2"
+    implementation "net.dreamlu:mica-captcha"
+    implementation "io.springfox:springfox-swagger2:$swaggerVersion"
+    implementation "io.springfox:springfox-swagger-ui:$swaggerVersion"
+    implementation "io.springfox:springfox-bean-validators:$swaggerVersion"
+    compileOnly "org.springframework.boot:spring-boot-devtools"
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testImplementation "net.dreamlu:mica-boot-test"
+}
+
+springBoot {
+    buildInfo()
+}
+
+processResources {
+    from("src/main/java") {
+        include "**/*.xml"
+    }
+}
+
+sourceSets {
+    main {
+        resources.srcDirs = ["src/main/java", "src/main/resources"]
+    }
+}
+
+compileJava.dependsOn(processResources)
+
+configurations {
+    compile.exclude group: "org.springframework.boot", module: "spring-boot-starter-tomcat"
+    all*.exclude group: "org.springframework.boot", module: "spring-boot-starter-logging"
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "net.dreamlu:mica-bom:${micaVersion}"
+    }
+}
